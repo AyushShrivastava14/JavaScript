@@ -125,25 +125,67 @@ const countriesContainer = document.querySelector(".countries");
 
 // Micro-task queue only takes promises callbacks and have a higher priority over callback queue, which means it will first finish the micro-tasks queue tasks and then execute the callback queue tasks.  [VVV imp]
 
-console.log("Starting");
+// console.log("Starting");
 
 // The callback of the timer will go the callback queue and will be executed after all the micro-tasks will be executed.
-setTimeout(() => {
-  console.log("0 sec timer");
-}, 0);
+// setTimeout(() => {
+//   console.log("0 sec timer");
+// }, 0);
 
 // The callback of the promise will go in micro-task queue and will be executed first
-Promise.resolve().then(() => {
-  console.log("Resolved Promise at the same time as timer");
-});
+// Promise.resolve().then(() => {
+//   console.log("Resolved Promise at the same time as timer");
+// });
 
 // If the promise's callback takes a lot of time to get executed then the timer will have to wait for more than the specified time which is a disadvantage and a good interview question.
-Promise.resolve("Resolved promise").then((res) => {
-  for (let i = 0; i < 1000000000; i++) {}
-  console.log(res);
-});
+// Promise.resolve("Resolved promise").then((res) => {
+//   for (let i = 0; i < 1000000000; i++) {}
+//   console.log(res);
+// });
 
-console.log("End");
+// console.log("End");
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 
+// Building a Simple Promise
+const lotteryPromise = new Promise(function (resolve, reject) {
+  console.log("Lotter draw is happening 🔮");
+  setTimeout(function () {
+    if (Math.random() >= 0.5) {
+      resolve("You WIN 💰");
+    } else {
+      reject(new Error("You lost your money 💩"));
+    }
+  }, 2000);
+});
+
+lotteryPromise
+  .then((res) => console.log(res))
+  .catch((err) => console.error(err));
+
+// Promisifying setTimeout
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+
+wait(1)
+  .then(() => {
+    console.log("1 second passed");
+    return wait(1);
+  })
+  .then(() => {
+    console.log("2 second passed");
+    return wait(1);
+  })
+  .then(() => {
+    console.log("3 second passed");
+    return wait(1);
+  })
+  .then(() => console.log("4 second passed"));
+
+Promise.resolve("abc").then((x) => console.log(x));
+Promise.reject(new Error("Problem!")).catch((x) => console.error(x));
+
+//----------------------------------------------------------------------------------------------------------------------------------------
