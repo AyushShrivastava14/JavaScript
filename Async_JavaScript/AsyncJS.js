@@ -5,37 +5,37 @@ const countriesContainer = document.querySelector(".countries");
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 
-// const renderCountry = function (data, className = "") {
-//   const html = `
-//     <article class="country ${className}">
-//       <img class="country__img" src="${data.flags.png}" />
-//       <div class="country__data">
-//         <h3 class="country__name">${data.name.common}</h3>
-//         <h4 class="country__region">${data.region}</h4>
-//         <p class="country__row"><span>👫</span>${(
-//           +data.population / 1000000
-//         ).toFixed(1)} people</p>
-//         <p class="country__row"><span>🗣️</span>${data.continents[0]}</p>
-//         <p class="country__row"><span>💰</span>${data.capital[0]}</p>
-//       </div>
-//     </article>
-//     `;
-//   countriesContainer.insertAdjacentHTML("beforeend", html);
-//   countriesContainer.style.opacity = 1;
-// };
+const renderCountry = function (data, className = "") {
+  const html = `
+    <article class="country ${className}">
+      <img class="country__img" src="${data.flags.png}" />
+      <div class="country__data">
+        <h3 class="country__name">${data.name.common}</h3>
+        <h4 class="country__region">${data.region}</h4>
+        <p class="country__row"><span>👫</span>${(
+          +data.population / 1000000
+        ).toFixed(1)} people</p>
+        <p class="country__row"><span>🗣️</span>${data.continents[0]}</p>
+        <p class="country__row"><span>💰</span>${data.capital[0]}</p>
+      </div>
+    </article>
+    `;
+  countriesContainer.insertAdjacentHTML("beforeend", html);
+  countriesContainer.style.opacity = 1;
+};
 
-// const renderError = function (msg) {
-//     countriesContainer.insertAdjacentText('beforeend', msg);
-//     countriesContainer.style.opacity = 1;
-// };
+const renderError = function (msg) {
+    countriesContainer.insertAdjacentText('beforeend', msg);
+    countriesContainer.style.opacity = 1;
+};
 
-// const getJSON =  function (url, errorMsg = 'Something went wrong') {
-//   return fetch(url).then(response => {
-//     if (!response.ok) throw new Error(`${errorMsg} (${response.status})`);
+const getJSON =  function (url, errorMsg = 'Something went wrong') {
+  return fetch(url).then(response => {
+    if (!response.ok) throw new Error(`${errorMsg} (${response.status})`);
 
-//     return response.json();
-//   });
-// };
+    return response.json();
+  });
+};
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -198,14 +198,29 @@ const whereAmI = async function (country) {
     const res = await fetch(`https://restcountries.com/v3.1/name/${country}`);
 
     const data = await res.json();
-    console.log(data[0]);
+    return data[0];
   } catch (err) {
     console.error(`${err} 💥`);
     renderError(`💥 ${err.message}`);
+
+    // So that it propagates, i.e it returns a error and we can catch that error in function call.
+    throw err;
   }
 };
 
 whereAmI('portugal');
-console.log('FIRST');
+console.log('FIRST'); // Appears first
+
+// IIFE (Immediately Invoked Function Expression)
+(async function() {
+  try {
+    const data = await whereAmI('portugal');
+    console.log(data);
+  }catch(err) {
+    console.error(`${err} 💥`);
+    renderError(`💥 ${err.message}`);
+  }
+  console.log('FIRST');  // Appears last
+})();
 
 //----------------------------------------------------------------------------------------------------------------------------------------
