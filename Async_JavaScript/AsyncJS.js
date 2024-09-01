@@ -25,12 +25,12 @@ const renderCountry = function (data, className = "") {
 };
 
 const renderError = function (msg) {
-    countriesContainer.insertAdjacentText('beforeend', msg);
-    countriesContainer.style.opacity = 1;
+  countriesContainer.insertAdjacentText("beforeend", msg);
+  countriesContainer.style.opacity = 1;
 };
 
-const getJSON =  function (url, errorMsg = 'Something went wrong') {
-  return fetch(url).then(response => {
+const getJSON = function (url, errorMsg = "Something went wrong") {
+  return fetch(url).then((response) => {
     if (!response.ok) throw new Error(`${errorMsg} (${response.status})`);
 
     return response.json();
@@ -193,34 +193,61 @@ const getJSON =  function (url, errorMsg = 'Something went wrong') {
 // Consuming Promises with Async/Await
 // Error Handling With try...catch
 
-const whereAmI = async function (country) {
+// const whereAmI = async function (country) {
+//   try {
+//     const res = await fetch(`https://restcountries.com/v3.1/name/${country}`);
+
+//     const data = await res.json();
+//     return data[0];
+//   } catch (err) {
+//     console.error(`${err} 💥`);
+//     renderError(`💥 ${err.message}`);
+
+//     // So that it propagates, i.e it returns a error and we can catch that error in function call.
+//     throw err;
+//   }
+// };
+
+// whereAmI('portugal');
+// console.log('FIRST'); // Appears first
+
+// IIFE (Immediately Invoked Function Expression)
+// (async function() {
+//   try {
+//     const data = await whereAmI('portugal');
+//     console.log(data);
+//   }catch(err) {
+//     console.error(`${err} 💥`);
+//     renderError(`💥 ${err.message}`);
+//   }
+//   console.log('FIRST');  // Appears last
+// })();
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+
+// Running Promises in parallel using Promise.all() (it returns a promise)
+
+const getCountries = async function (c1, c2, c3) {
   try {
-    const res = await fetch(`https://restcountries.com/v3.1/name/${country}`);
+    // In this, the promises run one after another which wastes time.
+    // const country1 = await getJSON(`https://restcountries.com/v3.1/name/${c1}`);
+    // const country2 = await getJSON(`https://restcountries.com/v3.1/name/${c2}`);
+    // const country3 = await getJSON(`https://restcountries.com/v3.1/name/${c3}`);
 
-    const data = await res.json();
-    return data[0];
-  } catch (err) {
-    console.error(`${err} 💥`);
-    renderError(`💥 ${err.message}`);
+    // console.log([country1[0].capital, country2[0].capital, country3[0].capital]);
 
-    // So that it propagates, i.e it returns a error and we can catch that error in function call.
-    throw err;
+
+    // In this, all the promises will run in parallel (we can view the effect in network tab in inspect)
+    const countries = await Promise.all([
+      getJSON(`https://restcountries.com/v3.1/name/${c1}`),
+      getJSON(`https://restcountries.com/v3.1/name/${c2}`),
+      getJSON(`https://restcountries.com/v3.1/name/${c3}`),
+    ]);
+
+    console.log(countries.map((country) => country[0].capital));
+  } catch (error) {
+    console.log(error);
   }
 };
 
-whereAmI('portugal');
-console.log('FIRST'); // Appears first
-
-// IIFE (Immediately Invoked Function Expression)
-(async function() {
-  try {
-    const data = await whereAmI('portugal');
-    console.log(data);
-  }catch(err) {
-    console.error(`${err} 💥`);
-    renderError(`💥 ${err.message}`);
-  }
-  console.log('FIRST');  // Appears last
-})();
-
-//----------------------------------------------------------------------------------------------------------------------------------------
+getCountries("portugal", "india", "canada");
