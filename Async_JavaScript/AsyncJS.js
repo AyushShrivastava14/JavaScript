@@ -227,27 +227,78 @@ const getJSON = function (url, errorMsg = "Something went wrong") {
 
 // Running Promises in parallel using Promise.all() (it returns a promise)
 
-const getCountries = async function (c1, c2, c3) {
-  try {
-    // In this, the promises run one after another which wastes time.
-    // const country1 = await getJSON(`https://restcountries.com/v3.1/name/${c1}`);
-    // const country2 = await getJSON(`https://restcountries.com/v3.1/name/${c2}`);
-    // const country3 = await getJSON(`https://restcountries.com/v3.1/name/${c3}`);
+// const getCountries = async function (c1, c2, c3) {
+//   try {
+// In this, the promises run one after another which wastes time.
+// const country1 = await getJSON(`https://restcountries.com/v3.1/name/${c1}`);
+// const country2 = await getJSON(`https://restcountries.com/v3.1/name/${c2}`);
+// const country3 = await getJSON(`https://restcountries.com/v3.1/name/${c3}`);
 
-    // console.log([country1[0].capital, country2[0].capital, country3[0].capital]);
+// console.log([country1[0].capital, country2[0].capital, country3[0].capital]);
+
+// In this, all the promises will run in parallel (we can view the effect in network tab in inspect)
+// But if any one of the promise gets rejected it will reject all the promises
+//     const countries = await Promise.all([
+//       getJSON(`https://restcountries.com/v3.1/name/${c1}`),
+//       getJSON(`https://restcountries.com/v3.1/name/${c2}`),
+//       getJSON(`https://restcountries.com/v3.1/name/${c3}`),
+//     ]);
+
+//     console.log(countries.map((country) => country[0].capital));
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+// getCountries("portugal", "india", "canada");
+
+// Promise.race(), it takes an array of promises and return the first completed (fulfilled/rejected) promise
+(async function (c1, c2, c3) {
+  const country = await Promise.race([
+    getJSON(`https://restcountries.com/v3.1/name/${c1}`),
+    getJSON(`https://restcountries.com/v3.1/name/${c2}`),
+    getJSON(`https://restcountries.com/v3.1/name/${c3}`),
+  ]);
+
+  console.log(country[0]);
+})("portugal", "india", "canada");
 
 
-    // In this, all the promises will run in parallel (we can view the effect in network tab in inspect)
-    const countries = await Promise.all([
-      getJSON(`https://restcountries.com/v3.1/name/${c1}`),
-      getJSON(`https://restcountries.com/v3.1/name/${c2}`),
-      getJSON(`https://restcountries.com/v3.1/name/${c3}`),
-    ]);
-
-    console.log(countries.map((country) => country[0].capital));
-  } catch (error) {
-    console.log(error);
-  }
+const timeout = function (sec) {
+  return new Promise(function (_, reject) {
+    setTimeout(function () {
+      reject(new Error('Request took too long!'));
+    }, sec * 1000);
+  });
 };
 
-getCountries("portugal", "india", "canada");
+Promise.race([
+  getJSON(`https://restcountries.com/v3.1/name/tanzania`),
+  timeout(0),
+])
+  .then(res => console.log(res[0]))
+  .catch(err => console.error(err));
+
+// Promise.allSettled(), it also takes an array of promises and output an array of all the promises whether they or resolved or rejected.
+Promise.allSettled([
+  Promise.resolve('Success'),
+  Promise.reject('ERROR'),
+  Promise.resolve('Another success'),
+]).then(res => console.log(res));
+
+Promise.all([
+  Promise.resolve('Success'),
+  Promise.reject('ERROR'),
+  Promise.resolve('Another success'),
+])
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+// Promise.any() [ES2021], it takes an array of promises and ignores the rejected promise and takes the first fulfilled promise only
+Promise.any([
+  Promise.resolve('Success'),
+  Promise.reject('ERROR'),
+  Promise.resolve('Another success'),
+])
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
